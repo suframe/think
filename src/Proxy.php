@@ -34,11 +34,11 @@ class Proxy
 
     protected function initialize()
     {
-        $rpcConfig = $this->app->config->get('swooleTcp.rpcConfig');
+        $appConfig = $this->app->config->get('swooleTcp.app');
         $this->rpcConfig = [
-            'path' => $rpcConfig['path'] ?? $this->app->getAppPath() . 'rpc' . DIRECTORY_SEPARATOR,
-            'rpc' => "\\app\\rpc\\",
-            'api' => "\\app\\api\\"
+            'path' => $appConfig['rpcPath'] ?? $this->app->getAppPath() . 'rpc' . DIRECTORY_SEPARATOR,
+            'rpc' => $appConfig['rpcNameSpace'],
+            'api' => $appConfig['apiNameSpace']
         ];
         return $this;
     }
@@ -71,7 +71,6 @@ class Proxy
         $apiName[] = $className;
         $className = implode('\\', $apiName);
         $apiClass = $nameSpace . $className;
-
         if (class_exists($apiClass)) {
             $methodName = 'run';
         } else {

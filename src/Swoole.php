@@ -12,6 +12,8 @@
 namespace suframe\think;
 
 use Exception;
+use suframe\core\components\Config;
+use suframe\core\components\register\Client as RegisterClient;
 use suframe\core\components\rpc\RpcUnPack;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -126,6 +128,16 @@ class Swoole
         $this->createPidFile();
 
         $this->container->event->trigger('swooleTcp.start', func_get_args());
+
+        go(function () {
+            //注册到summer-proxy
+            $config = Config::getInstance();
+            RegisterClient::getInstance()->register([
+                'path' => $config->get('app.path'),
+                'ip' => $config->get('server.host'),
+                'port' => $config->get('server.port'),
+            ]);
+        });
     }
 
     /**

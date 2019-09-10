@@ -6,7 +6,7 @@ use think\swoole\websocket\socketio\Parser;
 
 return [
     'server'           => [
-        'host'      => '0.0.0.0', // 监听地址
+        'host'      => '127.0.0.1', // 监听地址
         'port'      => 9506, // 监听端口
         'mode'      => SWOOLE_PROCESS, // 运行模式 默认为SWOOLE_PROCESS
         'sock_type' => SWOOLE_SOCK_TCP, // sock type 默认为SWOOLE_SOCK_TCP
@@ -27,15 +27,16 @@ return [
             'send_yield'            => true,
         ],
     ],
-    'rpcConfig'           => [
-        'path' => app_path() . 'rpc' . DIRECTORY_SEPARATOR,
-        'rpc' => "\\app\\rpc\\",
-        'api' => "\\app\\api\\",
-
-        'registerServer' => [
-            'ip' => '127.0.0.1',
-            'port' => 9500
-        ]
+    'app' => [
+        'path' => '/demo',
+        'rpcPath' => app_path() . 'rpc' . DIRECTORY_SEPARATOR,
+        'configPath' => config_path() . DIRECTORY_SEPARATOR,
+        'apiNameSpace' => '\app\api\\',
+        'rpcNameSpace' => '\app\rpc\\',
+    ],
+    'registerServer' => [
+        'ip' => '127.0.0.1',
+        'port' => 9500
     ],
     'hot_update'       => [
         'enable'  => env('app_debug', false),
