@@ -1,0 +1,24 @@
+{
+    "name": "suframe/think",
+    "description": "suframe thinkphp 6 extension",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "qian",
+            "email": "330576744@qq.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "suframe\\think\\": "src"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "suframe/core": "dev-master@dev"
+    },
+    "require-dev": {
+        "swoole/ide-helper": "@dev"
+    }
+}

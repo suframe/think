@@ -1,1 +1,2 @@
 # suframe-think
+使用thinkphp6作为suframe服务后端的扩展库，让thinkphp6有轻量级微服务功能
