@@ -2,12 +2,13 @@
 
 namespace suframe\think\command;
 
+use suframe\core\components\register\Client;
 use think\console\input\Argument;
 use think\helper\Arr;
 use suframe\think\Swoole;
 
 /**
- * Swoole HTTP 命令行，支持操作：start|stop|restart|reload
+ * Swoole HTTP 命令行，支持操作：start|stop|reload}sync
  * 支持应用配置目录下的swoole.php文件进行参数配置
  */
 class Server extends \think\swoole\command\Server
@@ -22,8 +23,22 @@ class Server extends \think\swoole\command\Server
     public function configure()
     {
         $this->setName('swooleTcp')
-            ->addArgument('action', Argument::OPTIONAL, "start|stop|restart|reload", 'start')
+            ->addArgument('action', Argument::OPTIONAL, "start|stop|reload|sync", 'start')
             ->setDescription('Swoole TCP Server for ThinkPHP');
+    }
+
+    public function handle()
+    {
+        $this->checkEnvironment();
+        $this->loadConfig();
+
+        $action = $this->input->getArgument('action');
+
+        if (in_array($action, ['start', 'stop', 'reload', 'sync'])) {
+            $this->$action();
+        } else {
+            $this->output->writeln("<error>Invalid argument action:{$action}, Expected start|stop|reload|sync .</error>");
+        }
     }
 
     /**
@@ -124,4 +139,25 @@ class Server extends \think\swoole\command\Server
         $this->output->writeln('> success');
     }
 
+    /**
+     * 同步注释文件
+     * @throws \Exception
+     */
+    protected function sync()
+    {
+        $out = $this->output;
+        go(function () use ($out){
+            try{
+                $rs = Client::getInstance()->commandUpdateServers();
+                $rs = $rs && Client::getInstance()->syncRpc();
+                if($rs){
+                    $out->writeln('success');
+                } else {
+                    $out->error('fail');
+                }
+            } catch (\Exception $e){
+                $out->error('fail:' . $e->getMessage());
+            }
+        });
+    }
 }
