@@ -19,7 +19,7 @@
           "suframe\\think\\Service"
         ],
         "config": {
-          "swoole": "src/config/swooleTcp.php"
+          "swooleTcp": "src/config/swooleTcp.php"
         }
       }
     },
