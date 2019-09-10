@@ -16,7 +16,7 @@
     "extra": {
       "think": {
         "services": [
-          "suframe\\\\think\\\\Service"
+          "suframe\\think\\Service"
         ],
         "config": {
           "swoole": "src/config/swooleTcp.php"
