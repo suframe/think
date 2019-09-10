@@ -13,6 +13,16 @@
             "suframe\\think\\": "src"
         }
     },
+    "extra": {
+      "think": {
+        "services": [
+          "suframe\\\\think\\\\Service"
+        ],
+        "config": {
+          "swoole": "src/config/swooleTcp.php"
+        }
+      }
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
