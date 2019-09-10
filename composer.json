@@ -26,7 +26,8 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "suframe/core": "dev-master@dev"
+        "suframe/core": "dev-master@dev",
+        "topthink/think-swoole": "^3.0"
     },
     "require-dev": {
         "swoole/ide-helper": "@dev"
