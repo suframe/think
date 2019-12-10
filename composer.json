@@ -19,14 +19,13 @@
           "suframe\\think\\Service"
         ],
         "config": {
-          "swooleTcp": "src/config/swooleTcp.php"
+          "swooleTcp": "src/config/suframeProxy.php"
         }
       }
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "suframe/core": "dev-master@dev",
         "topthink/think-swoole": "^3.0"
     },
     "require-dev": {
