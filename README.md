@@ -1,12 +1,34 @@
 # suframe-think
+开发交流QQ群：647344518   [立即加群](http://shang.qq.com/wpa/qunwpa?idkey=83a58116f995c9f83af6dc2b4ea372e38397349c8f1973d8c9827e4ae4d9f50e)
+
 使用thinkphp6作为suframe服务后端的扩展库，让thinkphp6有轻量级微服务功能    
 本库基于https://github.com/top-think/think-swoole **(v3.0.5以上版本)**上进行的扩展，基本保持原有用法不变。
 
-#  设计
+有兴趣的朋友可以看看这篇新手引导文章：https://www.zacms.com/index.php/archives/566/
+
+# 设计
 - 通过composer create-project topthink/think创建的为一个独立项目
 - 一个项目为一个服务提供者
 - 一个服务提供者可以提供多个接口
 - 自动注册接口到注册中心
 - 有新服务注册，自动更新client列表
-- 
+- api网关代理(未完成)
+
+# 开始
+1. 创建1个thinkphp项目作为服务
+```
+composer create-project topthink/think server1
+cd server1
+composer require suframe/think:dev-master
+```
+
+2. 复制server1命名为 server2
+```
+cp -r server1 server2
+```
+
+3. 修改配置
+打开config/swoole.php
+修改port为8090
+修改
 
