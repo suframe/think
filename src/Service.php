@@ -19,7 +19,13 @@ class Service extends \think\Service
      */
     public function register()
     {
+        if (!$this->app->runningInConsole()) {
+            return false;
+        }
         $swoole = config('swoole');
+        if(!isset($swoole['rpc'])){
+            return false;
+        }
         //增加suframe interface
         if (!$swoole['rpc']['server']['enable'] === true) {
             return false;
