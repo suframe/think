@@ -6,8 +6,10 @@ namespace suframe\think\driver;
 interface DriverInterface
 {
 
-    public function run(array $config): bool;
+    public function registerApiGateway(array $config): bool;
 
-    public function register(array $data): bool;
+    public function register(array $config): bool;
+
+    public function notify(array $clients, array $data): bool;
 
 }

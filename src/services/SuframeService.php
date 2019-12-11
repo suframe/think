@@ -13,21 +13,14 @@ class SuframeService implements SuframeInterface
 
     protected $cacheKey = 'suframe.hosts';
 
-    public function notify($data)
-    {
-        // TODO: Implement notify() method.
-        return 'ok';
-    }
-
     /**
      * 注册
      * @param $data
-     * @param Manager $manager
      * @param PidManager $pidManager
      * @return string
      * @throws \Exception
      */
-    public function register($data, Manager $manager, PidManager $pidManager)
+    public function register($data): string
     {
         if (!$data) {
             return 'fail';
@@ -60,16 +53,27 @@ class SuframeService implements SuframeInterface
         $hosts[$name] = $post;
         cache($this->cacheKey, $hosts);
 
-        go(function () use ($hosts) {
+        go(function () use ($hosts, $data) {
             //生成rpc service配置
             $this->bulidServiceConfigFile();
-            //注册接口到第三方网关代理
-            $dirver = Service::getDirver();
-            $dirver->register($hosts);
             //重置swoole配置
             Config::load(app()->getConfigPath() . 'swoole.php', 'swoole');
             //生成接口
             Console::call('rpc:interface');
+            $dirver = Service::getDirver();
+            //注册接口到第三方网关代理
+            $dirver->register($hosts);
+            if (!isset($data['__UPDATE__'])) {
+                //通知更新
+                $data['__UPDATE__'] = true;
+                $clients = config('swoole.rpc.client');
+                //自己不用通知了
+                $name = config('suframeProxy.name');
+                if (isset($clients[$name])) {
+                    unset($data[$name]);
+                }
+                $dirver->notify($clients, $data);
+            }
         });
         //执行
         return 'ok';

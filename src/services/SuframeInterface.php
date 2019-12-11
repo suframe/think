@@ -1,9 +1,17 @@
 <?php
+
 namespace suframe\think\services;
+
 
 interface SuframeInterface
 {
 
-    public function notify($data);
+    /**
+     * 注册
+     * @param $data
+     * @return string
+     * @throws \Exception
+     */
+    public function register($data): string;
 
 }

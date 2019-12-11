@@ -33,7 +33,7 @@ class Service extends \think\Service
             //注册
             $driver = Service::getDirver();
             $config = config('suframeProxy');
-            $driver->run($config);
+            $driver->register($config);
         });
     }
 
