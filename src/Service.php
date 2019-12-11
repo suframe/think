@@ -2,10 +2,9 @@
 
 namespace suframe\think;
 
+use suframe\think\driver\DriverInterface;
 use Swoole\Server as TcpServer;
 use suframe\think\command\Server as ServerCommand;
-use think\facade\Event;
-
 
 class Service extends \think\Service
 {
@@ -32,18 +31,29 @@ class Service extends \think\Service
         //注册服务启动监听事件
         app()->event->listen('swoole.start', function () {
             //注册
-            file_put_contents(__DIR__ . '/test', 1111);
+            $driver = Service::getDirver();
             $config = config('suframeProxy');
-            $dirver = __NAMESPACE__ . '\\driver\\Driver' . ucfirst($config['driver']);
-            if (class_exists($dirver)) {
-                (new $dirver)->run($config);
-            }
+            $driver->run($config);
         });
     }
 
     public function boot()
     {
         $this->commands(ServerCommand::class);
+    }
+
+    /**
+     * @return DriverInterface
+     * @throws \Exception
+     */
+    public static function getDirver() : DriverInterface
+    {
+        $driver = config('suframeProxy.driver');
+        $dirverClass = __NAMESPACE__ . '\\driver\\Driver' . ucfirst($driver);
+        if (!class_exists($dirverClass)) {
+            throw new \Exception('need dirver');
+        }
+        return new $dirverClass;
     }
 
 }

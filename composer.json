@@ -19,7 +19,8 @@
           "suframe\\think\\Service"
         ],
         "config": {
-          "swooleTcp": "src/config/suframeProxy.php"
+          "suframeProxy": "src/config/suframeProxy.php",
+          "suframeRpcClient": "src/config/suframeRpcClient.php"
         }
       }
     },
