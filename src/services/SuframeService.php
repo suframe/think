@@ -16,7 +16,6 @@ class SuframeService implements SuframeInterface
     /**
      * 注册
      * @param $data
-     * @param PidManager $pidManager
      * @return string
      * @throws \Exception
      */
