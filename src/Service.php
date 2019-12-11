@@ -20,7 +20,7 @@ class Service extends \think\Service
     public function register()
     {
         if (!$this->app->runningInConsole()) {
-            return false;
+            return true;
         }
         $swoole = config('swoole');
         if(!isset($swoole['rpc'])){
