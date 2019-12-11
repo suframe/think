@@ -8,6 +8,11 @@ return [
     'port' => '8081',
     'rpcPort' => '9009',
     'timeout' => 2.5,
+    'apiGetway' => [
+        'enable' => false,
+        'host' => '',
+        'port' => '',
+    ],
     'registerServer' => [
         'ip' => '127.0.0.1',
         'port' => 9500

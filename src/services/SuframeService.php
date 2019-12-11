@@ -61,8 +61,6 @@ class SuframeService implements SuframeInterface
             //生成接口
             Console::call('rpc:interface');
             $dirver = Service::getDirver();
-            //注册接口到第三方网关代理
-            $dirver->register($hosts);
             if (!isset($data['__UPDATE__'])) {
                 //通知更新
                 $data['__UPDATE__'] = true;
@@ -74,6 +72,11 @@ class SuframeService implements SuframeInterface
                 }
                 $dirver->notify($clients, $data);
             }
+            //注册接口到第三方网关代理
+            if (config('suframeProxy.apiGetway.enable')) {
+                $dirver->registerApiGateway($hosts);
+            }
+
         });
         //执行
         return 'ok';
