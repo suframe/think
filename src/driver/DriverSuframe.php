@@ -62,25 +62,23 @@ class DriverSuframe implements DriverInterface
 
     protected function send($host, $port, $data, $action)
     {
-        go(function () use ($data, $host, $port, $action) {
-            try{
-                $rpcClient = new Client($host, $port);
-                $param = [
-                    'jsonrpc' => JsonParser::VERSION,
-                    'method' => 'SuframeInterface' . JsonParser::DELIMITER . $action,
-                    'params' => ['data' => $data]
-                ];
-                $param = json_encode($param, JSON_UNESCAPED_UNICODE);
-                $response = $rpcClient->sendAndRecv($param);
-                $response = json_decode($response, true);
-                if (!$response) {
-                    return false;
-                }
-                echo "services notify {$host}:{$port}:" . $response['result'] . "\n";
-            } catch (\Exception | ErrorException | RpcClientException $e) {
-                echo "services notify {$host}:{$port}: error\n";
+        try{
+            $rpcClient = new Client($host, $port);
+            $param = [
+                'jsonrpc' => JsonParser::VERSION,
+                'method' => 'SuframeInterface' . JsonParser::DELIMITER . $action,
+                'params' => ['data' => $data]
+            ];
+            $param = json_encode($param, JSON_UNESCAPED_UNICODE);
+            $response = $rpcClient->sendAndRecv($param);
+            $response = json_decode($response, true);
+            if (!$response) {
+                return false;
             }
-        });
+            echo "services notify {$host}:{$port}:" . $response['result'] . "\n";
+        } catch (\Exception | ErrorException | RpcClientException $e) {
+            echo "services notify {$host}:{$port}: error\n";
+        }
     }
 
     public function registerApiGateway(array $config): bool
