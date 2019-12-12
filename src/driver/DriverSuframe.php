@@ -74,9 +74,9 @@ class DriverSuframe implements DriverInterface
                 if (!$response) {
                     return false;
                 }
-                echo "services notify {$host}:{$host}:" . $response['result'] . "\n";
+                echo "services notify {$host}:{$port}:" . $response['result'] . "\n";
             } catch (\Exception $e) {
-                echo "services notify {$host}:{$host}: error\n";
+                echo "services notify {$host}:{$port}: error\n";
             }
         });
     }
