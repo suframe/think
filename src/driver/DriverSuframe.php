@@ -2,6 +2,7 @@
 
 namespace suframe\think\driver;
 
+use suframe\think\services\SuframeService;
 use think\exception\ErrorException;
 use think\swoole\exception\RpcClientException;
 use think\swoole\rpc\client\Client;
@@ -45,46 +46,39 @@ class DriverSuframe implements DriverInterface
         if (!$clients) {
             return false;
         }
-        foreach ($clients as $name => $client) {
-            $interface = "\\rpc\\contract\\{$name}\\SuframeInterface";
 
-            if (!interface_exists($interface)) {
-                //引入rpc接口文件
-                if (file_exists($rpc = app()->getBasePath() . 'rpc.php')) {
-                    include_once $rpc;
-                }
+        if ($clients) {
+            foreach ($clients as $name => $client) {
+                $interface = "\\rpc\\contract\\{$name}\\SuframeInterface";
+                $this->send($client['host'], $client['port'], $clients, 'notify');
             }
-            $this->send($client['host'], $client['port'], $clients, 'notify');
         }
         return true;
-        // TODO: Implement notify() method.
     }
 
     protected function send($host, $port, $data, $action)
     {
-        try {
-            go(function () use ($host, $port, $data, $action) {
-                try {
-                    $rpcClient = new Client($host, $port);
-                    $param = [
-                        'jsonrpc' => JsonParser::VERSION,
-                        'method' => 'SuframeInterface' . JsonParser::DELIMITER . $action,
-                        'params' => ['data' => $data]
-                    ];
-                    $param = json_encode($param, JSON_UNESCAPED_UNICODE);
-                    $response = $rpcClient->sendAndRecv($param);
-                    $response = json_decode($response, true);
-                    if (!$response) {
-                        return false;
-                    }
-                    echo "services notify {$host}:{$port}:" . $response['result'] . "\n";
-                } catch (\Exception | ErrorException | RpcClientException $e) {
-                    echo "services notify {$host}:{$port}: error\n";
+        go(function () use ($host, $port, $data, $action) {
+            try {
+                $rpcClient = new Client($host, $port);
+                $param = [
+                    'jsonrpc' => JsonParser::VERSION,
+                    'method' => 'SuframeInterface' . JsonParser::DELIMITER . $action,
+                    'params' => ['data' => $data]
+                ];
+                $param = json_encode($param, JSON_UNESCAPED_UNICODE);
+                $response = $rpcClient->sendAndRecv($param);
+                $response = json_decode($response, true);
+                if (!$response) {
+                    return null;
                 }
-            });
-        } catch (\Exception | ErrorException | RpcClientException $e) {
-            echo "services notify {$host}:{$port}: error\n";
-        }
+                echo "services notify {$host}:{$port}:" . $response['result'] . "\n";
+                return $response;
+            } catch (\Exception | ErrorException | RpcClientException $e) {
+                echo "services {$action} {$host}:{$port}: error\n";
+                return null;
+            }
+        });
     }
 
     public function registerApiGateway(array $config): bool

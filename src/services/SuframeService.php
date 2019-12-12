@@ -3,8 +3,10 @@
 namespace suframe\think\services;
 
 use suframe\think\Service;
+use think\exception\ErrorException;
 use think\facade\Config;
 use think\facade\Console;
+use think\swoole\exception\RpcClientException;
 use think\swoole\Manager;
 use think\swoole\PidManager;
 
@@ -36,8 +38,8 @@ class SuframeService implements SuframeInterface
             'path' => $path,
             'name' => $name,
             'host' => $host,
-            'port' => $port,
-            'rpcPort' => $rpcPort,
+            'apiPort' => $port,
+            'port' => $rpcPort,
         ];
         /*if(isset($hosts[$name])){
             $hosts[$name][] = $post;
@@ -47,27 +49,53 @@ class SuframeService implements SuframeInterface
         //目前好像只支持一个，已经反馈社区增加多个，增加负载算法
         // todo 带官方增加多个后修改,目前以最后一个为有效
         $clients[$name] = $post;
-        $this->storeToFile($clients);
+        $clients = $this->checkClients($clients);
 
-        go(function () use ($clients) {
-            //重置swoole配置
-            Config::load(app()->getConfigPath() . 'swoole.php', 'swoole');
-            //生成接口
-            Console::call('rpc:interface');
-            $dirver = Service::getDirver();
-            //自己不用通知了
-            $name = config('suframeProxy.name');
-            if (isset($clients[$name])) {
-                unset($clients[$name]);
-            }
-            $dirver->notify($clients);
-            //注册接口到第三方网关代理
-            if (config('suframeProxy.apiGetway.enable')) {
-                $dirver->registerApiGateway($clients);
-            }
-        });
+        $dirver = Service::getDirver();
+        //自己不用通知了
+        $name = config('suframeProxy.name');
+        if (isset($clients[$name])) {
+            unset($clients[$name]);
+        }
+        if (!$clients) {
+            return 'ok';
+        }
+        $clients = $dirver->notify($clients);
+        //注册接口到第三方网关代理
+        if (config('suframeProxy.apiGetway.enable')) {
+            $dirver->registerApiGateway($clients);
+        }
+        //生成接口
+        Console::call('rpc:interface');
         //执行
         return 'ok';
+    }
+
+    public function checkClients($clients)
+    {
+        $name = config('suframeProxy.name');
+        $interface = "\\rpc\\contract\\{$name}\\SuframeInterface";
+        if (!interface_exists($interface)) {
+            //引入rpc接口文件
+            if (file_exists($rpc = app()->getBasePath() . 'rpc.php')) {
+                include_once $rpc;
+            }
+        }
+
+        //clients 检测是否有效,否则后面生成接口会报错
+        foreach ($clients as $name => $client) {
+            $swooleClient = new \Swoole\Client(SWOOLE_SOCK_TCP);
+            try {
+                if (!$swooleClient->connect($client['host'], $client['port'], 0.5)) {
+                    unset($clients[$name]);
+                }
+            } catch (\Exception $e) {
+
+                unset($clients[$name]);
+            }
+        }
+        static::storeToFile($clients);
+        return $clients;
     }
 
     /**
@@ -75,14 +103,10 @@ class SuframeService implements SuframeInterface
      * @param $clients
      * @return bool
      */
-    protected function storeToFile($clients)
+    public static function storeToFile($clients)
     {
-        $suframeRpcClient = config('suframeRpcClient', []);
-        $suframeRpcClient = array_merge($clients, $suframeRpcClient);
-        if (!$suframeRpcClient) {
-            return false;
-        }
-        $suframeRpcClient = var_export($suframeRpcClient, true);
+        $clients = $clients ?: [];
+        $suframeRpcClient = var_export($clients, true);
         $configPath = app()->getConfigPath() . 'suframeRpcClient.php';
         $content = <<<EOE
 <?php
@@ -92,6 +116,8 @@ EOE;
         if (!$rs) {
             return false;
         }
+        //重置swoole配置
+        Config::load(app()->getConfigPath() . 'swoole.php', 'swoole');
         return $rs;
     }
 
@@ -102,7 +128,7 @@ EOE;
      */
     public function notify($clients): bool
     {
-        $rs = $this->storeToFile($clients);
+        $rs = static::storeToFile($clients);
         echo "new notify update clients " . ($rs ? 'success' : 'fail') . "\n";
         return $rs;
     }
