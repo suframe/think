@@ -10,6 +10,6 @@ interface DriverInterface
 
     public function register(array $config): bool;
 
-    public function notify(array $clientss = [], array $data = []): bool;
+    public function notify(array $clients = []): bool;
 
 }

@@ -14,4 +14,11 @@ interface SuframeInterface
      */
     public function register($data): string;
 
+    /**
+     * 通知更新
+     * @param $clients
+     * @return string
+     */
+    public function notify($clients): bool;
+
 }

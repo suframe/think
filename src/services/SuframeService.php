@@ -60,22 +60,17 @@ class SuframeService implements SuframeInterface
             //生成接口
             Console::call('rpc:interface');
             $dirver = Service::getDirver();
-            if (!isset($data['__UPDATE__'])) {
-                //通知更新
-                $data['__UPDATE__'] = true;
-                $clients = config('swoole.rpc.client');
-                //自己不用通知了
-                $name = config('suframeProxy.name');
-                if (isset($clients[$name])) {
-                    unset($data[$name]);
-                }
-                $dirver->notify($clients, $data);
+            $clients = config('swoole.rpc.client');
+            //自己不用通知了
+            $name = config('suframeProxy.name');
+            if (isset($clients[$name])) {
+                unset($data[$name]);
             }
+            $dirver->notify($clients);
             //注册接口到第三方网关代理
             if (config('suframeProxy.apiGetway.enable')) {
                 $dirver->registerApiGateway($hosts);
             }
-
         });
         //执行
         return 'ok';
@@ -93,6 +88,16 @@ class SuframeService implements SuframeInterface
                 'timeout' => $timeout,
             ];
         }
+        return $this->storeToFile($clients);
+    }
+
+    /**
+     * 保存文件
+     * @param $clients
+     * @return bool
+     */
+    protected function storeToFile($clients)
+    {
         $suframeRpcClient = config('suframeRpcClient', []);
         $suframeRpcClient = array_merge($clients, $suframeRpcClient);
         if (!$suframeRpcClient) {
@@ -108,5 +113,16 @@ EOE;
         if (!$rs) {
             return false;
         }
+        return $rs;
+    }
+
+    /**
+     * 通知更新
+     * @param $clients
+     * @return bool
+     */
+    public function notify($clients): bool
+    {
+        return $this->storeToFile($clients);
     }
 }

@@ -28,7 +28,7 @@ class DriverSuframe implements DriverInterface
             'port' => $config['port'],
             'rpcPort' => $config['rpcPort'],
         ];
-        $this->send($config['registerServer']['host'], $config['registerServer']['port'], $post);
+        $this->send($config['registerServer']['host'], $config['registerServer']['port'], $post, 'register');
         return true;
     }
 
@@ -38,12 +38,12 @@ class DriverSuframe implements DriverInterface
      * @return bool
      * @throws \think\swoole\exception\RpcClientException
      */
-    public function notify(array $clientss = [], array $data = []): bool
+    public function notify(array $clients = []): bool
     {
-        if (!$clientss) {
+        if (!$clients) {
             return false;
         }
-        foreach ($clientss as $name => $client) {
+        foreach ($clients as $name => $client) {
             $interface = "\\rpc\\contract\\{$name}\\SuframeInterface";
 
             if (!interface_exists($interface)) {
@@ -52,20 +52,20 @@ class DriverSuframe implements DriverInterface
                     include_once $rpc;
                 }
             }
-            $this->send($client['host'], $client['port'], $data);
+            $this->send($client['host'], $client['port'], $clients, 'notify');
         }
         return true;
         // TODO: Implement notify() method.
     }
 
-    protected function send($host, $port, $data)
+    protected function send($host, $port, $data, $action)
     {
-        go(function () use ($data, $host, $port) {
+        go(function () use ($data, $host, $port, $action) {
             try{
                 $rpcClient = new Client($host, $port);
                 $param = [
                     'jsonrpc' => JsonParser::VERSION,
-                    'method' => 'SuframeInterface' . JsonParser::DELIMITER . 'register',
+                    'method' => 'SuframeInterface' . JsonParser::DELIMITER . $action,
                     'params' => ['data' => $data]
                 ];
                 $param = json_encode($param, JSON_UNESCAPED_UNICODE);
