@@ -3,6 +3,7 @@
 namespace suframe\think\driver;
 
 use think\exception\ErrorException;
+use think\swoole\exception\RpcClientException;
 use think\swoole\rpc\client\Client;
 use think\swoole\rpc\JsonParser;
 
@@ -76,7 +77,7 @@ class DriverSuframe implements DriverInterface
                     return false;
                 }
                 echo "services notify {$host}:{$port}:" . $response['result'] . "\n";
-            } catch (\Exception | ErrorException $e) {
+            } catch (\Exception | ErrorException | RpcClientException $e) {
                 echo "services notify {$host}:{$port}: error\n";
             }
         });
