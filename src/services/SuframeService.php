@@ -123,6 +123,8 @@ EOE;
      */
     public function notify($clients): bool
     {
-        return $this->storeToFile($clients);
+        $rs = $this->storeToFile($clients);
+        echo "new notify update clients " . ($rs ? 'success' : 'fail') . "\n";
+        return $rs;
     }
 }
