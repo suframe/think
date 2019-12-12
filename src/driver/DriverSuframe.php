@@ -28,10 +28,7 @@ class DriverSuframe implements DriverInterface
             'port' => $config['port'],
             'rpcPort' => $config['rpcPort'],
         ];
-        go(function () use ($config, $post) {
-            $result = app()->invoke([app()->make($config['services']['suframe']), 'register'], ['data' => $post]);
-            echo 'services register ' . $result . "\n";
-        });
+        $this->send($config['registerServer']['host'], $config['registerServer']['port'], $post);
         return true;
     }
 
@@ -55,30 +52,33 @@ class DriverSuframe implements DriverInterface
                     include_once $rpc;
                 }
             }
-            go(function () use ($data, $client) {
-                try{
-                    $rpcClient = new Client($client['host'], $client['port']);
-                    $param = [
-                        'jsonrpc' => JsonParser::VERSION,
-                        'method' => 'SuframeInterface' . JsonParser::DELIMITER . 'register',
-                        'params' => ['data' => $data]
-                    ];
-                    $param = json_encode($param, JSON_UNESCAPED_UNICODE);
-                    $response = $rpcClient->sendAndRecv($param);
-                    $response = json_decode($response, true);
-                    if (!$response) {
-                        return false;
-                    }
-                    echo "services notify {$client['host']}:{$client['port']}:" . $response['result'] . "\n";
-                } catch (\Exception $e) {
-                    echo "services notify {$client['host']}:{$client['port']}: error\n";
-                }
-
-            });
-
+            $this->send($client['host'], $client['port'], $data);
         }
         return true;
         // TODO: Implement notify() method.
+    }
+
+    protected function send($host, $port, $data)
+    {
+        go(function () use ($data, $host, $port) {
+            try{
+                $rpcClient = new Client($host, $port);
+                $param = [
+                    'jsonrpc' => JsonParser::VERSION,
+                    'method' => 'SuframeInterface' . JsonParser::DELIMITER . 'register',
+                    'params' => ['data' => $data]
+                ];
+                $param = json_encode($param, JSON_UNESCAPED_UNICODE);
+                $response = $rpcClient->sendAndRecv($param);
+                $response = json_decode($response, true);
+                if (!$response) {
+                    return false;
+                }
+                echo "services notify {$host}:{$host}:" . $response['result'] . "\n";
+            } catch (\Exception $e) {
+                echo "services notify {$host}:{$host}: error\n";
+            }
+        });
     }
 
     public function registerApiGateway(array $config): bool
