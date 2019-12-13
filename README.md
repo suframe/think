@@ -17,22 +17,10 @@
 - api网关代理(未完成)
 
 # 快速体验
-```
-git clone https://github.com/suframe/think-demo
-# 启动服务1
-cd think-demo/serve1/
-composer install
-php think swoole
 
-# 启动服务2
-cd think-demo/serve2/
-composer install
-php think swoole
-```
+[https://github.com/suframe/think-demo](https://github.com/suframe/think-demo)
 
-访问：http://127.0.0.1:8090/index/rpc/test
-
-有兴趣的可以去看怎么从零搭建自己的服务：https://www.zacms.com/index.php/archives/566/
+有兴趣的可以去看怎么从零搭建自己的服务：[https://www.zacms.com/index.php/archives/566/](https://www.zacms.com/index.php/archives/566/)
 
 
 
