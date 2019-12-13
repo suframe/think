@@ -57,8 +57,6 @@ class SuframeService implements SuframeInterface
         if (config('suframeProxy.apiGetway.enable')) {
             $dirver->registerApiGateway($clients);
         }
-        //生成接口
-        Console::call('rpc:interface');
         //执行
         return 'ok';
     }
@@ -122,6 +120,8 @@ EOE;
     {
         $rs = static::storeToFile($data);
         echo "- update local clients " . ($rs ? 'success' : 'fail') . "\n";
+        //生成接口
+        Console::call('rpc:interface');
         return $rs ? 'success' : 'fail';
     }
 }
