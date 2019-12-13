@@ -72,7 +72,7 @@ class DriverSuframe implements DriverInterface
                 if (!$response) {
                     return null;
                 }
-                echo "services notify {$host}:{$port}:" . $response['result'] . "\n";
+                echo "services {$action} {$host}:{$port}:" . $response['result'] . "\n";
                 return $response;
             } catch (\Exception | ErrorException | RpcClientException $e) {
                 echo "services {$action} {$host}:{$port}: error\n";
