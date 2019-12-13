@@ -16,9 +16,9 @@ interface SuframeInterface
 
     /**
      * 通知更新
-     * @param $clients
-     * @return string
+     * @param $data
+     * @return bool
      */
-    public function notify($clients): bool;
+    public function notify($data): bool;
 
 }

@@ -52,14 +52,6 @@ class SuframeService implements SuframeInterface
         $clients = $this->checkClients($clients);
 
         $dirver = Service::getDirver();
-        //自己不用通知了
-        $name = config('suframeProxy.name');
-        if (isset($clients[$name])) {
-            unset($clients[$name]);
-        }
-        if (!$clients) {
-            return 'ok';
-        }
         $clients = $dirver->notify($clients);
         //注册接口到第三方网关代理
         if (config('suframeProxy.apiGetway.enable')) {
@@ -123,12 +115,12 @@ EOE;
 
     /**
      * 通知更新
-     * @param $clients
+     * @param $data
      * @return bool
      */
-    public function notify($clients): bool
+    public function notify($data): bool
     {
-        $rs = static::storeToFile($clients);
+        $rs = static::storeToFile($data);
         echo "new notify update clients " . ($rs ? 'success' : 'fail') . "\n";
         return $rs;
     }
