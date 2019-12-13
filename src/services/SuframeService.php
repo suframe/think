@@ -121,7 +121,6 @@ EOE;
     public function notify($data): string
     {
         $rs = static::storeToFile($data);
-        echo "new notify update clients " . ($rs ? 'success' : 'fail') . "\n";
         return $rs ? 'success' : 'fail';
     }
 }
