@@ -36,6 +36,10 @@ return [
 http://127.0.0.1:8090/apis/goods/hello/my
 http://127.0.0.1:8090/apis/goods/hello/my
 
+# 服务监控
+使用swoole_tracker http://base.swoole-cloud.com/1214079,免费的
+安装比较简单，无侵入。照着手册撸即可
+
 
 
 
