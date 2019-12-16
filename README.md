@@ -14,13 +14,28 @@
 - 一个服务提供者可以提供多个接口
 - 自动注册接口到注册中心
 - 有新服务注册，自动更新client列表
-- api网关代理(未完成)
+- api网关代理
+- todo:Swoole Tracker集成
 
 # 快速体验
 
 [https://github.com/suframe/think-demo](https://github.com/suframe/think-demo)
 
 有兴趣的可以去看怎么从零搭建自己的服务：[https://www.zacms.com/index.php/archives/566/](https://www.zacms.com/index.php/archives/566/)
+
+# api网关
+服务拆分后，api分布比较散，需要统一对外暴露地址
+打开app/middleware.php文件，增加
+```
+return [
+    \suframe\think\middlewares\Gateway::class
+    ...
+]
+```
+访问：(网关端口和地址目前是你用于注册rpc的地址)
+http://127.0.0.1:8090/apis/goods/hello/my
+http://127.0.0.1:8090/apis/goods/hello/my
+
 
 
 
