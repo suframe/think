@@ -16,11 +16,11 @@ class Gateway
      * @return mixed|Response
      * @throws Exception
      */
-    public function handle(Request $request, \Closure $next)
+    public function handle($request, \Closure $next)
     {
         $pathInfo = $request->pathinfo();
         if (!$pathInfo || (strpos($pathInfo, 'apis/') !== 0)) {
-            return next($request);
+            return $next($request);
         }
         //代理网关
         $clients = config('suframeRpcClient');
