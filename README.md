@@ -15,7 +15,7 @@
 - 自动注册接口到注册中心
 - 有新服务注册，自动更新client列表
 - api网关代理
-- todo:Swoole Tracker集成
+- todo:Swoole Tracker集成（未完成）
 
 # 快速体验
 
