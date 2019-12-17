@@ -38,11 +38,14 @@ class Gateway
         $route = '/' . $route;
 
         $client = new \Swoole\Coroutine\Http\Client($clientConfig['host'], $clientConfig['apiPort']);
-        $client->setHeaders($request->header());
+        $header = $request->header();
+        $header['__request_id__'] = session_create_id();
+        $client->setHeaders($header);
         $client->set([ 'timeout' => 1]);
         $client->setMethod($request->method());
+        $param = $request->param();
         if($request->isGet()){
-            if($param = $request->param()){
+            if($param){
                 $param = http_build_query($param);
                 $route .= '?' . $param;
             }
@@ -54,7 +57,7 @@ class Gateway
                     $client->addFile($file->getRealPath(), $file->getOriginalName(), $file->getType(), $file->getFilename());
                 }
             }
-            $client->post($route, $request->param());
+            $client->post($route, $param);
         }
 
         $rs = $client->body;
