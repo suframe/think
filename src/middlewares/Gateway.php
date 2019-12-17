@@ -39,7 +39,7 @@ class Gateway
 
         $client = new \Swoole\Coroutine\Http\Client($clientConfig['host'], $clientConfig['apiPort']);
         $header = $request->header();
-        $header['__request_id__'] = session_create_id();
+        $header['--request-id--'] = session_create_id();
         $client->setHeaders($header);
         $client->set([ 'timeout' => 1]);
         $client->setMethod($request->method());

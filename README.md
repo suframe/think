@@ -44,7 +44,15 @@ http://127.0.0.1:8090/apis/goods/hello/my
 
 # 分布式日志
 微服务化开发，没有统一日志进行链路追踪是很痛苦的事情，不过就是那么巧，think-swoole扩展性还有待提高，目前还没有办法
-把一个请求的request_id一层层传下去并生成统一日志。 这个我只能想折中的方法了，只是这样业务强绑定了，开发体验不是很好
+把一个请求的request_id一层层传下去并生成统一日志。 
+
+这个我只能想折中的方法了，只是这样业务强绑定了，开发体验不是很好.
+
+1. 在前端网关转发的是，后端服务controller可从header中获取--request_id-- 作为链路请求标识。
+2. rpc接口约定好，定义接口的时候，最后一个参数定义$ext = [], 用于扩展 
+3. 在controller或者其他业务代码中调用rcp接口的时候， $rpc->method([业务参数], $this->getRpcExtParams()), 其中$this->getRpcExtParams()就是系统默认增加的额外参数，当然前提是你控制器要use suframe\think\traits\ControllerHelper;
+4. 日志，tp6的日志比较灵活，意思就是要自己写，包括请求日志，等你自己想获取的
+
 
 
 
