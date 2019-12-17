@@ -53,6 +53,8 @@ http://127.0.0.1:8090/apis/goods/hello/my
 3. 在controller或者其他业务代码中调用rcp接口的时候， $rpc->method([业务参数], $this->getRpcExtParams()), 其中$this->getRpcExtParams()就是系统默认增加的额外参数，当然前提是你控制器要use suframe\think\traits\ControllerHelper;
 4. 日志，tp6的日志比较灵活，意思就是要自己写，包括请求日志，等你自己想获取的
 
+已经反馈社区看如何处理
+
 
 
 
