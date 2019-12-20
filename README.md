@@ -18,6 +18,30 @@
 - Swoole Tracker集成
 - todo:日志及链路追踪
 
+# 安装使用
+```
+composer create-project topthink/think server1
+cd server1
+composer require suframe/think
+```
+修改config/swoole.php
+```
+rpc.server.enable => true,
+rpc.server.port => 自定义端口,
+rpc.client => include(__DIR__ . '/suframeRpcClient.php');
+```
+
+修改config/suframeProxy.php
+```
+path => '/admin' 为你想注册的api网关根路径，例如/admin, 
+name => 'admin' 为你服务的名称（只能是英文字母）
+registerServer => [
+    'ip' => '127.0.0.1' //选一个应用作为服务注册的应用，这里就选第一个
+    'port' => 8091
+]
+```
+
+
 # 快速体验
 
 [https://github.com/suframe/think-demo](https://github.com/suframe/think-demo)
