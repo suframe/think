@@ -9,7 +9,7 @@ trait CURDRpcHelper
 {
 
     /**
-     * @return mixed|Model
+     * @return mixed|\think\Model
      */
     private function getManageModel()
     {
