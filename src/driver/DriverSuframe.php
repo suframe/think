@@ -49,7 +49,6 @@ class DriverSuframe implements DriverInterface
 
         if ($clients) {
             foreach ($clients as $name => $client) {
-                $interface = "\\rpc\\contract\\{$name}\\SuframeInterface";
                 $this->send($client['host'], $client['port'], $clients, 'notify');
             }
         }
