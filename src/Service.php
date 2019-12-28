@@ -4,7 +4,6 @@ namespace suframe\think;
 
 use suframe\think\driver\DriverInterface;
 use Swoole\Server as TcpServer;
-use suframe\think\command\Server as ServerCommand;
 
 class Service extends \think\Service
 {
@@ -45,7 +44,6 @@ class Service extends \think\Service
 
     public function boot()
     {
-        $this->commands(ServerCommand::class);
     }
 
     /**
