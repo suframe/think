@@ -14,8 +14,8 @@ return [
         'port' => '',
     ],
     'registerServer' => [
-        'host' => env('suframeProxy.registerServerHost', '127.0.0.1'),
-        'port' => env('suframeProxy.registerServerPort', '9200')
+        'host' => env('suframe.registerHost', '127.0.0.1'),
+        'port' => env('suframe.registerPort', '9200')
     ],
     'services' => [
         'suframe' => \suframe\think\services\SuframeService::class
