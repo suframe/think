@@ -4,9 +4,9 @@ return [
     'driver' => 'suframe',
     'path' => '/user',
     'name' => 'user', //用于接口生成命名空间
-    'host' => env('suframeProxy.host', '127.0.0.1'),
-    'port' => env('suframeProxy.port', '8200'),
-    'rpcPort' => env('suframeProxy.rpcPort', '9200'),
+    'host' => env('SWOOLE_HOST', '127.0.0.1'),
+    'port' => env('SWOOLE_PORT', '8200'),
+    'rpcPort' => env('SWOOLE_RPC_PORT', '9200'),
     'timeout' => 2.5,
     'apiGetway' => [
         'enable' => false,
