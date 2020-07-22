@@ -2,11 +2,11 @@
 
 namespace suframe\think\driver;
 
-use suframe\think\services\SuframeService;
+use Swoole\Client;
 use think\exception\ErrorException;
 use think\swoole\exception\RpcClientException;
-use think\swoole\rpc\client\Client;
 use think\swoole\rpc\JsonParser;
+use think\swoole\rpc\Packer;
 
 /**
  * suframe proxy driver
@@ -59,15 +59,22 @@ class DriverSuframe implements DriverInterface
     {
         go(function () use ($host, $port, $data, $action) {
             try {
-                $rpcClient = new Client($host, $port);
+                $rpcClient = new Client(SWOOLE_SOCK_TCP);
+                $rpcClient->connect($host, $port);
+                if (!$rpcClient->connect($host, $port, -1)) {
+                    return null;
+                }
                 $param = [
                     'jsonrpc' => JsonParser::VERSION,
                     'method' => 'SuframeInterface' . JsonParser::DELIMITER . $action,
                     'params' => ['data' => $data]
                 ];
                 $param = json_encode($param, JSON_UNESCAPED_UNICODE);
-                $response = $rpcClient->sendAndRecv($param);
+                $param = Packer::pack($param);
+                $rpcClient->send($param);
+                $response = $rpcClient->recv();
                 $response = json_decode($response, true);
+                $rpcClient->close();
                 if (!$response) {
                     return null;
                 }

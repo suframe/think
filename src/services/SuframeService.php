@@ -3,12 +3,8 @@
 namespace suframe\think\services;
 
 use suframe\think\Service;
-use think\exception\ErrorException;
 use think\facade\Config;
 use think\facade\Console;
-use think\swoole\exception\RpcClientException;
-use think\swoole\Manager;
-use think\swoole\PidManager;
 
 class SuframeService implements SuframeInterface
 {
