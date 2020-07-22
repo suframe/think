@@ -57,34 +57,30 @@ class DriverSuframe implements DriverInterface
 
     protected function send($host, $port, $data, $action)
     {
-        go(function () use ($host, $port, $data, $action) {
-            try {
-                $rpcClient = new Client(SWOOLE_SOCK_TCP);
-                $rpcClient->connect($host, $port);
-                if (!$rpcClient->connect($host, $port, -1)) {
-                    return null;
-                }
-                $param = [
-                    'jsonrpc' => JsonParser::VERSION,
-                    'method' => 'SuframeInterface' . JsonParser::DELIMITER . $action,
-                    'params' => ['data' => $data]
-                ];
-                $param = json_encode($param, JSON_UNESCAPED_UNICODE);
-                $param = Packer::pack($param);
-                $rpcClient->send($param);
-                $response = $rpcClient->recv();
-                $response = json_decode($response, true);
-                $rpcClient->close();
-                if (!$response) {
-                    return null;
-                }
-                echo "services {$action} {$host}:{$port}:" . $response['result'] . "\n";
-                return $response;
-            } catch (\Exception | ErrorException | RpcClientException $e) {
-                echo "services {$action} {$host}:{$port}: error\n";
-                return null;
-            }
-        });
+        $rpcClient = new Client(SWOOLE_SOCK_TCP);
+        if (!$rpcClient->connect($host, $port, -1)) {
+            return null;
+        }
+        $param = [
+            'method' => 'SuframeInterface' . JsonParser::DELIMITER . $action,
+            'params' => ['data' => $data]
+        ];
+        $param = json_encode($param, JSON_UNESCAPED_UNICODE);
+        $param = Packer::pack($param);
+        $response = '';
+        $rpcClient->send($param);
+        $response = $rpcClient->recv();
+        [$header, $response] = Packer::unpack($response);
+
+        $response = json_decode($response, true);
+        $rpcClient->close();
+        if (!$response) {
+            echo "register services {$action} {$host}:{$port}:fail\n";
+            return null;
+        }
+        echo "services {$action} {$host}:{$port}:" . $response['result'] . "\n";
+        return $response;
+
     }
 
     public function registerApiGateway(array $config): bool

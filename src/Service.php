@@ -4,6 +4,7 @@ namespace suframe\think;
 
 use suframe\think\driver\DriverInterface;
 use Swoole\Server as TcpServer;
+use suframe\think\command\Rpc;
 
 class Service extends \think\Service
 {
@@ -21,6 +22,7 @@ class Service extends \think\Service
         if (!$this->app->runningInConsole()) {
             return true;
         }
+        $this->commands(Rpc::class);
         $swoole = config('swoole');
         if(!isset($swoole['rpc'])){
             return false;
@@ -33,13 +35,6 @@ class Service extends \think\Service
         $suframeService = config('suframeProxy.services');
         $swoole['rpc']['server']['services'] = array_merge($swoole['rpc']['server']['services'], $suframeService);
         config($swoole, 'swoole');
-        //注册服务启动监听事件
-        app()->event->listen('swoole.start', function () {
-            //注册
-            $driver = Service::getDirver();
-            $config = config('suframeProxy');
-            $driver->register($config);
-        });
     }
 
     public function boot()
