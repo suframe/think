@@ -21,38 +21,50 @@ class SuframeService implements SuframeInterface
             return 'fail';
         }
 
-        $clients = config('swoole.rpc.client');
-        $path = $data['path'] ?? '';
-        $host = $data['host'] ?? '';
-        $port = $data['port'] ?? '';
-        $name = $data['name'] ?? '';
-        $rpcPort = $data['rpcPort'] ?? '';
-        if (!$path || !$host || !$name || (!$port && !$rpcPort)) {
-            return 'fail';
-        }
-        $post = [
-            'path' => $path,
-            'name' => $name,
-            'host' => $host,
-            'apiPort' => $port,
-            'port' => $rpcPort,
-        ];
-        /*if(isset($hosts[$name])){
-            $hosts[$name][] = $post;
-        } else {
-            $hosts[$name] = [$post];
-        }*/
-        //目前好像只支持一个，已经反馈社区增加多个，增加负载算法
-        // todo 带官方增加多个后修改,目前以最后一个为有效
-        $clients[$name] = $post;
-        $clients = $this->checkClients($clients);
+        $configPath = app()->getConfigPath() . 'suframeRpcClient.php';
+        $file = fopen($configPath, 'r+');
+        if (flock($file, LOCK_EX)) {
+            $clients = include($configPath);
+            $clients = $clients ?: [];
+//        $clients = config('swoole.rpc.client');
+            $path = $data['path'] ?? '';
+            $host = $data['host'] ?? '';
+            $port = $data['port'] ?? '';
+            $name = $data['name'] ?? '';
+            $rpcPort = $data['rpcPort'] ?? '';
+            if (!$path || !$host || !$name || (!$port && !$rpcPort)) {
+                return 'fail';
+            }
+            $post = [
+                'path' => $path,
+                'name' => $name,
+                'host' => $host,
+                'apiPort' => $port,
+                'port' => $rpcPort,
+            ];
+            /*if(isset($hosts[$name])){
+                $hosts[$name][] = $post;
+            } else {
+                $hosts[$name] = [$post];
+            }*/
+            //目前好像只支持一个，已经反馈社区增加多个，增加负载算法
+            // todo 带官方增加多个后修改,目前以最后一个为有效
+            $clients[$name] = $post;
+            $clients = $this->checkClients($clients);
+            $dirver = Service::getDirver();
+            $clients = $dirver->notify($clients);
+            //注册接口到第三方网关代理
+            if (config('suframeProxy.apiGetway.enable')) {
+                $dirver->registerApiGateway($clients);
+            }
 
-        $dirver = Service::getDirver();
-        $clients = $dirver->notify($clients);
-        //注册接口到第三方网关代理
-        if (config('suframeProxy.apiGetway.enable')) {
-            $dirver->registerApiGateway($clients);
+            flock($file, LOCK_UN);
+        } else {
+            echo "no lock\n";
+            \co::sleep(1);
         }
+        fclose($file);
+
         //执行
         return 'ok';
     }
@@ -98,16 +110,11 @@ class SuframeService implements SuframeInterface
 <?php
 return {$suframeRpcClient};
 EOE;
-        $lock = new \swoole_lock(SWOOLE_MUTEX);
-        $lock->lock();
-        $rs = file_put_contents($configPath, $content . PHP_EOL);
-        $lock->unlock();
 
-        unset($lock);
+        $rs = file_put_contents($configPath, $content . PHP_EOL);
         if (!$rs) {
             return false;
         }
-        //重置swoole配置
         Config::load(app()->getConfigPath() . 'swoole.php', 'swoole');
         return $rs;
     }
