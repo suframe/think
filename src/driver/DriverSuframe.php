@@ -67,7 +67,6 @@ class DriverSuframe implements DriverInterface
         ];
         $param = json_encode($param, JSON_UNESCAPED_UNICODE);
         $sendParam = Packer::pack($param);
-        $response = '';
         $rpcClient->send($sendParam);
         $response = $rpcClient->recv();
         [$header, $response] = Packer::unpack($response);
