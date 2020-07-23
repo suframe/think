@@ -26,7 +26,6 @@ class SuframeService implements SuframeInterface
         if (flock($file, LOCK_EX)) {
             $clients = include($configPath);
             $clients = $clients ?: [];
-//        $clients = config('swoole.rpc.client');
             $path = $data['path'] ?? '';
             $host = $data['host'] ?? '';
             $port = $data['port'] ?? '';
@@ -42,17 +41,12 @@ class SuframeService implements SuframeInterface
                 'apiPort' => $port,
                 'port' => $rpcPort,
             ];
-            /*if(isset($hosts[$name])){
-                $hosts[$name][] = $post;
-            } else {
-                $hosts[$name] = [$post];
-            }*/
             //目前好像只支持一个，已经反馈社区增加多个，增加负载算法
             // todo 带官方增加多个后修改,目前以最后一个为有效
             $clients[$name] = $post;
             $clients = $this->checkClients($clients);
             $dirver = Service::getDirver();
-            $clients = $dirver->notify($clients);
+            $dirver->notify($clients);
             //注册接口到第三方网关代理
             if (config('suframeProxy.apiGetway.enable')) {
                 $dirver->registerApiGateway($clients);
