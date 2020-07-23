@@ -66,9 +66,9 @@ class DriverSuframe implements DriverInterface
             'params' => ['data' => $data]
         ];
         $param = json_encode($param, JSON_UNESCAPED_UNICODE);
-        $param = Packer::pack($param);
+        $sendParam = Packer::pack($param);
         $response = '';
-        $rpcClient->send($param);
+        $rpcClient->send($sendParam);
         $response = $rpcClient->recv();
         [$header, $response] = Packer::unpack($response);
 
@@ -78,9 +78,13 @@ class DriverSuframe implements DriverInterface
             echo "register services {$action} {$host}:{$port}:fail\n";
             return null;
         }
-        echo "services {$action} {$host}:{$port}:" . $response['result'] . "\n";
+        if (isset($response['error'])) {
+            $message = $response['error']['message'] ?? 'fail';
+            echo "register services {$action} {$host}:{$port}:{$message}\n";
+            return null;
+        }
+        echo "services {$action} {$host}:{$port}:" . $response['result'] . ", param: {$param}\n";
         return $response;
-
     }
 
     public function registerApiGateway(array $config): bool

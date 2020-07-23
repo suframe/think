@@ -98,7 +98,12 @@ class SuframeService implements SuframeInterface
 <?php
 return {$suframeRpcClient};
 EOE;
+        $lock = new \swoole_lock(SWOOLE_MUTEX);
+        $lock->lock();
         $rs = file_put_contents($configPath, $content . PHP_EOL);
+        $lock->unlock();
+
+        unset($lock);
         if (!$rs) {
             return false;
         }
