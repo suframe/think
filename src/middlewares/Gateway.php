@@ -45,6 +45,7 @@ class Gateway
 
         $authClass = "\\app\\auth\\" . ucfirst($name);
         $uid = 0;
+        $param = $request->param();
         if (class_exists($authClass)) {
             $auth = $authClass::getInstance();
             $rs = $auth->handle($uid, $route, $param, $request, $next);
@@ -61,7 +62,6 @@ class Gateway
         $client->setHeaders($header);
         $client->set(['timeout' => 1]);
         $client->setMethod($request->method());
-        $param = $request->param();
 
         if ($request->isGet()) {
             if ($param) {
