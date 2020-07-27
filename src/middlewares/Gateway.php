@@ -19,7 +19,7 @@ class Gateway
     public function handle($request, \Closure $next)
     {
         $pathInfo = $request->pathinfo();
-        if (!strpos($pathInfo, 'gateway/') === 0) {
+        if (strpos($pathInfo, 'gateway/') === 0) {
             return $next($request);
         }
 
