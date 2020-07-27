@@ -63,6 +63,7 @@ class Gateway
                 $param = http_build_query($param);
                 $route .= '?' . $param;
             }
+//            trace('GATEWAY ' . $name .  ' GET ' . $route . ' ' . date('Y-m-d H:i:s'));
             $client->get($route);
         } else {
             if ($files = $request->file()) {
@@ -72,6 +73,7 @@ class Gateway
                 }
             }
             $client->post($route, $param);
+//            trace('GATEWAY ' . $name .  ' POST ' . $route . ' ' . date('Y-m-d H:i:s') . ' data: ' . json_encode($param, JSON_UNESCAPED_UNICODE));
         }
 
         $rs = $client->body;
