@@ -19,17 +19,22 @@ class Gateway
     public function handle($request, \Closure $next)
     {
         $pathInfo = $request->pathinfo();
-        if (!$pathInfo || (strpos($pathInfo, 'gateway/') === 0)) {
+        if (!strpos($pathInfo, 'gateway/') === 0) {
             return $next($request);
         }
+
         //代理网关
         $clients = config('suframeRpcClient');
         if (!$clients) {
             throw new Exception('api not found:' . $pathInfo);
         }
         $route = explode('/', $pathInfo);
-        $name = array_shift($route);
-
+        if (!$name = $request->header('--app-id--')) {
+            if (!$pathInfo) {
+                return $next($request);
+            }
+            $name = array_shift($route);
+        }
 
         $clientConfig = $clients[$name] ?? null;
         if (!$clientConfig) {
