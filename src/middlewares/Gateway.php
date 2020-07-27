@@ -19,7 +19,7 @@ class Gateway
     public function handle($request, \Closure $next)
     {
         $pathInfo = $request->pathinfo();
-        if (!$pathInfo || (strpos($pathInfo, 'apis/') !== 0)) {
+        if (!$pathInfo || (strpos($pathInfo, 'gateway/') === 0)) {
             return $next($request);
         }
         //代理网关
@@ -28,8 +28,9 @@ class Gateway
             throw new Exception('api not found:' . $pathInfo);
         }
         $route = explode('/', $pathInfo);
-        array_shift($route);
         $name = array_shift($route);
+
+
         $clientConfig = $clients[$name] ?? null;
         if (!$clientConfig) {
             throw new Exception('api name not found:' . $name);
@@ -37,21 +38,34 @@ class Gateway
         $route = implode('/', $route);
         $route = '/' . $route;
 
+        $authClass = "\\app\\auth\\" . ucfirst($name);
+        $uid = 0;
+        if (class_exists($authClass)) {
+            $auth = $authClass::getInstance();
+            $rs = $auth->handle($uid, $route, $param, $request, $next);
+            if ($rs) {
+                return $rs;
+            }
+        }
         $client = new \Swoole\Coroutine\Http\Client($clientConfig['host'], $clientConfig['apiPort']);
         $header = $request->header();
         $header['--request-id--'] = session_create_id();
+        if ($uid) {
+            $header['--uid--'] = $uid;
+        }
         $client->setHeaders($header);
-        $client->set([ 'timeout' => 1]);
+        $client->set(['timeout' => 1]);
         $client->setMethod($request->method());
         $param = $request->param();
-        if($request->isGet()){
-            if($param){
+
+        if ($request->isGet()) {
+            if ($param) {
                 $param = http_build_query($param);
                 $route .= '?' . $param;
             }
             $client->get($route);
         } else {
-            if($files = $request->file()){
+            if ($files = $request->file()) {
                 /** @var UploadedFile $file */
                 foreach ($files as $file) {
                     $client->addFile($file->getRealPath(), $file->getOriginalName(), $file->getType(), $file->getFilename());
